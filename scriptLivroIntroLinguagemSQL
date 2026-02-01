@@ -1,0 +1,545 @@
+-- Aprendizado em SQLite a partir do livro ""Instrodução à Linguagem SQL", por Thomas Nield. 
+
+/* !!! Banco de dados: rexon_metal.db !!! */
+
+
+-- Selecione todas as colunas da tabela customer:
+select * from customer; 
+
+-- Selecione as colunas citadas da tabela customer:
+select customer_id, name from customer;
+
+-- Selecione tudo da tabela citada:
+select * from product;
+
+-- Selecione as colunas citadas e calcule uma coluna com o preço original acrescido de 7%, da tabela product:
+select product_id, description, price, price*1.07 as TAXED_PRICE from product; -- Com alias, a coluna é nomeada conforme apelido.
+select product_id, description, price, price*1.07 from product; -- Sem alias, a coluna é nomeada com o cálculo feito.
+select product_id, description, price as UNTAXED_PRICE, price*1.07 as TAXED_PRICE from product; 
+select product_id, description, price as UNTAXED_PRICE, round(price*1.07, 2) as TAXED_PRICE from product; -- Com a função round(), permite o arredondamento com 2 argumentos (n. a ser arredondado, qtd de casas decimais)
+
+-- Concatenação de duas colunas
+select name, street_address || ", "|| city || "-" || state || ". " || zip as ADDRESS from customer;
+
+-- JOIN --> INNER JOIN (juntando duas tabelas naquilo que elas têm em comum):
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    customer_order.order_id, customer_order.order_date, customer_order.ship_date, customer_order.product_id, customer_order.order_qty, 
+    case 
+        when customer_order.shipped = true then "yes"
+        else "no" 
+        end
+from customer inner join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID;
+
+-- LEFT JOIN (juntando duas tabelas naquilo que elas têm em comum + todo o resto da tabela à esquerda):
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    case
+        when customer_order.order_id isnull then 'no'
+        else customer_order.order_id
+        end as ORDER_ID, 
+    case
+        when customer_order.order_date isnull then 'no'
+        else customer_order.order_date
+        end as ORDER_DATE, 
+    case
+        when customer_order.ship_date isnull then 'no'
+        else customer_order.ship_date
+        end as SHIP_DATE, 
+    case
+        when customer_order.product_id isnull then 'no'
+        else customer_order.product_id
+        end as PRODUCT_ID,
+    case     
+        when customer_order.order_qty isnull then 'no'
+        else customer_order.order_qty
+        end as ORDER_QTY, 
+    case 
+        when customer_order.shipped = true then 'yes'
+        else 'no' 
+        end as CUSTOMER_ORDER
+from customer left join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID;
+
+-- Procurando pais sem filhos usando clasula WHERE para encontrar o ID null na tabela filho que esteja na clausula do JOIN:
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    case
+        when customer_order.order_id isnull then 'no'
+        else customer_order.order_id
+        end as ORDER_ID, 
+    case
+        when customer_order.order_date isnull then 'no'
+        else customer_order.order_date
+        end as ORDER_DATE, 
+    case
+        when customer_order.ship_date isnull then 'no'
+        else customer_order.ship_date
+        end as SHIP_DATE, 
+    case
+        when customer_order.product_id isnull then 'no'
+        else customer_order.product_id
+        end as PRODUCT_ID,
+    case     
+        when customer_order.order_qty isnull then 'no'
+        else customer_order.order_qty
+        end as ORDER_QTY, 
+    case 
+        when customer_order.shipped = true then 'yes'
+        else 'no' 
+        end as CUSTOMER_ORDER
+from customer left join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID where customer_order.ORDER_ID isnull;
+
+-- RIGHT JOIN (juntando duas tabelas naquilo que elas têm em comum + todo o resto da tabela à direita):
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    case
+        when customer_order.order_id isnull then 'no'
+        else customer_order.order_id
+        end as ORDER_ID, 
+    case
+        when customer_order.order_date isnull then 'no'
+        else customer_order.order_date
+        end as ORDER_DATE, 
+    case
+        when customer_order.ship_date isnull then 'no'
+        else customer_order.ship_date
+        end as SHIP_DATE, 
+    case
+        when customer_order.product_id isnull then 'no'
+        else customer_order.product_id
+        end as PRODUCT_ID,
+    case     
+        when customer_order.order_qty isnull then 'no'
+        else customer_order.order_qty
+        end as ORDER_QTY, 
+    case 
+        when customer_order.shipped = true then 'yes'
+        else 'no' 
+        end as CUSTOMER_ORDER
+from customer right join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID;
+
+-- OUTER JOIN (juntando todos os registros das duas tabelas):
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    case
+        when customer_order.order_id isnull then 'no'
+        else customer_order.order_id
+        end as ORDER_ID, 
+    case
+        when customer_order.order_date isnull then 'no'
+        else customer_order.order_date
+        end as ORDER_DATE, 
+    case
+        when customer_order.ship_date isnull then 'no'
+        else customer_order.ship_date
+        end as SHIP_DATE, 
+    case
+        when customer_order.product_id isnull then 'no'
+        else customer_order.product_id
+        end as PRODUCT_ID,
+    case     
+        when customer_order.order_qty isnull then 'no'
+        else customer_order.order_qty
+        end as ORDER_QTY, 
+    case 
+        when customer_order.shipped = true then 'yes'
+        else 'no' 
+        end as CUSTOMER_ORDER
+from customer outer join customer_order;
+
+
+
+
+-- INNER JOIN entre mais de duas tabelas:
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    customer_order.order_id, customer_order.order_date, customer_order.ship_date, customer_order.product_id, customer_order.order_qty, 
+    case 
+        when customer_order.shipped = true then "yes"
+        else "no" 
+        end as SHIPPED,
+    product.PRODUCT_ID ,product.DESCRIPTION, product.PRICE
+from customer   inner join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID
+                inner join product on product.PRODUCT_ID = customer_order.PRODUCT_ID;
+
+
+                
+-- JOIN permitindo expressões em campos de tabelas separadas:
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    customer_order.order_id, customer_order.order_date, customer_order.ship_date, customer_order.product_id, customer_order.order_qty, 
+    product.PRODUCT_ID ,product.DESCRIPTION, product.PRICE,
+    customer_order.order_qty * product.PRICE as TOTAL_SELL,-- Tabela calculada
+     case 
+        when customer_order.shipped = true then "yes"
+        else "no" 
+        end as SHIPPED
+from customer   inner join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID
+                inner join product on product.PRODUCT_ID = customer_order.PRODUCT_ID;
+                
+-- Receita total por cliente (agrupamento):
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    customer_order.order_id, customer_order.order_date, customer_order.ship_date, customer_order.product_id, customer_order.order_qty, 
+    product.PRODUCT_ID ,product.DESCRIPTION, product.PRICE,
+    round(sum(customer_order.order_qty * product.PRICE),2) as TOTAL_SELL,-- Tabela calculada
+     case 
+        when customer_order.shipped = true then "yes"
+        else "no" 
+        end as SHIPPED
+from customer   inner join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID
+                inner join product on product.PRODUCT_ID = customer_order.PRODUCT_ID
+                group by customer.name order by 1; 
+
+select 
+    customer.customer_id, customer.name, customer.region, customer.street_address, customer.city, customer.state, customer.zip, 
+    customer_order.order_id, customer_order.order_date, customer_order.ship_date, customer_order.product_id, customer_order.order_qty, 
+    product.PRODUCT_ID ,product.DESCRIPTION, product.PRICE,
+    round(sum(customer_order.order_qty * product.PRICE),2) as TOTAL_SELL,-- Tabela calculada
+     case 
+        when customer_order.shipped = true then "yes"
+        else "no" 
+        end as SHIPPED
+from customer   left join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID
+                left join product on product.PRODUCT_ID = customer_order.PRODUCT_ID
+                group by customer.name order by 1; 
+
+-- Função coalsce() para transformar valores nulos em zero:
+select 
+    customer.customer_id, customer.name, 
+    coalesce(round(sum(customer_order.order_qty * product.PRICE),2),0) as TOTAL_SELL,-- Tabela calculada
+    case 
+        when customer_order.shipped = true then "yes"
+        when customer_order.shipped = false then "no"
+        else coalesce(customer_order.shipped, 0)
+        end as SHIPPED
+    
+from customer   left join customer_order on customer.CUSTOMER_ID = customer_order.CUSTOMER_ID
+                left join product on product.PRODUCT_ID = customer_order.PRODUCT_ID
+                group by customer.name order by 1; 
+
+
+/* !!! Banco de dados: weather_stations.db !!! */
+
+select * from station_data;
+
+-- todas as colunas da tabela station_data onde o ano é 2000:
+select * from station_data where year = 2000;
+
+-- todas as colunas da tabela sation_data exceto o ano 2010:
+select * from station_data where year != 2010;
+select * from station_data where year <> 2010;
+
+-- selecione todas as colunas da tabela station_data onde o ano é entre o ano x e y, incluindo x e y:
+select * from station_data where year between 2005 and 2010;
+select* from station_data where year >= 2005 and year <=2010;
+
+-- selecione todas as colunas da tabela station_data onde o ano é entre o ano x e y, excluído x e y (exclusivamente):
+select * from station_data where year > 2005 and yeah < 2010;
+
+-- selecione todas as colunas da tabela station_data onde os meses são 3 ou 6 ou 9 ou 12:
+select * from station_data where month = 3 or month = 6 or month = 9 or month = 12;
+select * from station_data where month in(3, 6, 9, 12);
+
+-- selecione todas as colunas da tabela station_data onde os meses são exceto 3 ou 6 ou 9 ou 12:
+select * from station_data where month not in(3, 6, 9, 12);
+
+-- selecione todas as colunas da tabela citada onde os meses são divisíveis por 3:
+select * from station_data where month%3 = 0; 
+
+-- selecione todas as colunas da tabela citada onde o report_code é igual ao referenciado:
+select * from station_data where report_code='513A63';
+select * from station_data where report_code = '513A63' or report_code = '1F8A7B' or report_code = 'EF616A';
+select * from station_data where report_code in ('513A63','1F8A7B', 'EF616A');
+
+-- controle de qualidade --> todos os report_code devem ter 6 dígitos! Logo, selecione todas as colunas da tabela citada onde o report_code seja diferente de 6:
+select * from station_data where length(report_code) != 6;
+
+-- uso de coringa --> selecione todas as colunas da tabela citada onde o report_code começa com A:
+select * from station_data where report_code like 'A%';
+
+-- uso de coringa --> selecione todas as fcolunas da tabela citada onde o report_code contém com A:
+select * from station_data where report_code like '%A%';
+
+-- uso de coringa --> selecione todas as colunas da tabela citada onde o report_code termina com A:
+select * from station_data where report_code like '%A';
+
+-- uso de coringa --> selecione todas as colunas da tabela citada onde o report_code começa um B e tem um C em algum lugar:
+select * from station_data where report_code like 'B_C%';
+
+-- selecione todas as colunas da tabela station_data onde tem tornado e tem hail:
+select * from station_data where tornado = true and hail = true;
+select * from station_data where tornado = 1 and hail = 1;
+select * from station_data where tornado and hail;
+
+-- selecione todas as colunas da tabela station_data onde não tem tornado e tem hail:
+select * from station_data where tornado = false and hail = true;
+select * from station_data where tornado = 0 and hail = 1;
+select * from station_data where not tornado and hail;
+
+-- selecione todas as colunas da tabela station_data where snow_depth é nulo (não tem valor, pois o valor não foi coletado):
+select * from station_data where snow_depth is null;
+
+-- selecione todas as colunas da tabela station_data onde precipitation é menor ou igual a 0.5:
+select * from station_data where precipitation <= 0.5;
+
+-- selecione todas as colunas da tabela station_data onde precipitation é menor ou igual a 0.5 ou o precipitation não foi coletado:
+select * from station_data where precipitation <= 0.5 or precipitation is null;
+
+-- Tratando precipitation como valor 0 onde ele é nulo:
+select * from  station_data where coalesce(precipitation, 0) <= 0.5;
+
+-- Tratando precipitation nulo com placeholder para melhor visualização em relatório:
+select report_code, precipitation from station_data;
+select report_code, coalesce(precipitation, 'N/I') as rainfall from station_data;
+
+-- Usando parenteses para explicitar condiçõe s encadeadas, evitando ambiguidade:
+select * from station_data where rain = 1 and temperature <=32 or snow_depth > 0; -- resultado: 1895 registros
+select * from station_data where (rain = 1 and temperature <=32) or snow_depth > 0; -- resultado: 1895 registros
+select * from station_data where rain = 1 and (temperature <=32 or snow_depth > 0); -- resultado: 531 registros
+
+-- Contando o n. de registros da tabela station_data:
+select count(*) as record_count from station_data;
+
+-- Contando o n. de registros da tabela station_data em que tornado está presente:
+select count(*) as record_count_tornado from station_data where tornado = 1;
+
+-- Contando o n. de registros da tabela station_data em que tornado está presente agrupado por ano:
+select year, count(*) as record_count_tornado_per_year from station_data where tornado =  1 group by year;
+
+-- Contando o n. de registros da tabela station_data em que tornado está presente agrupado por ano e mês:
+select year, month, count(*) as record_count_tornado_per_year from station_data where tornado =  1 group by year, month;
+
+-- Contando o n. de registros da tabela station_data em que tornado está presente agrupado por ano, ordenando por ano em forma decrescente:
+select year, count(*) as record_count_tornado_per_year from station_data where tornado =  1 group by year order by year desc;
+
+-- Contando o n. de registros da tabela station_data em que tornado está presente agrupado por ano e mês, ordenando por ano em forma decrescente:
+select year, month, count(*) as record_count_tornado_per_year from station_data where tornado =  1 group by year, month order by year desc, month;
+
+-- Contando valores não nulos de uma coluna (funções de agregação não consideram valores nulos):
+select count(snow_depth) from station_data; -- resposta: 1552 registros
+select snow_depth from station_data where snow_depth is not null; -- resposta: 1552 registros
+
+-- Calculando temperatura média por mês a partir de 2000:
+select year, month, round(avg(temperature),2) as media_temperatura from station_data where year >= 2000 group by month order by year desc;
+
+-- Calculando a soma dos valores de profundidade de neve por ano desde 2000:
+select year, sum(snow_depth) as total_snow from station_data where year >=2000 group by year order by year desc;
+
+-- Calculando o total de neve e o total de precipitação por ano desde 2000 com precipitação máxima:
+select year, sum(snow_depth) as total_snow, sum(precipitation) as total_precipitation, max(precipitation) as max_precipitation 
+    from station_data where year >=2000
+        group by year order by year desc; 
+    
+-- Calculando o total de precipitação por ano quando tiver ocorrência de tornado desde o ano de 2000:
+select year, sum(precipitation) as total_precipitation 
+    from station_data where year >= 2000 and tornado = 1 
+        group by year order by year desc;   
+        
+-- Selecionando precipitação com uma cláusula de agregação:
+select year, sum(precipitation) as total_precipitation 
+    from station_data where precipitation >= 30 group by year; --resultado: nulo
+select year, sum(precipitation) as total_precipitation 
+    from station_data group by year having sum(precipitation) >= 30; --resultado: 30 registros
+    
+-- Selecionando com distinção (eliminando duplidades):
+select station_number from station_data; -- resultado: 28.000 registros
+select distinct(station_number) from station_data; -- resultado: 6.368 registros
+select distinct station_number, year from station_data; -- resultado: 9.578 registros
+
+-- A temperatura vem aumentando em todo mês de janeiro nos ultimos 20 anos?
+select year, month, avg(temperature) as avg_temperature
+    from station_data where year >= (select max(year) from station_data) - 20 and month = 1 group by year;
+    -- transformar o resultado em gráfico de linha.
+    
+
+-- Quantas vezes tivemos e não tivemos granizo durante um tornado?
+
+select hail,tornado from station_data;
+select count(hail) as Granizo_com_Tornado, (select count(hail) as Granizo_com_Tornado from station_data where hail = 0 and tornado = 1) as Granizo_sem_Tornado 
+    from station_data where hail = 1 and tornado = 1;
+    
+-- Usando instruções CASE:
+select report_code, year, month, day, wind_speed,
+    case
+        when wind_speed >=40 then 'High'
+        when wind_speed >=30 and wind_speed <40 then 'Moderate'
+        else 'Low'
+    end as wind_severity
+    from station_data;
+    
+-- Usando instruções CASE com agrupamento:
+select year,
+    case
+        when wind_speed >=40 then 'High'
+        when wind_speed >=30 and wind_speed <40 then 'Moderate'
+        else 'Low'
+    end as wind_severity,
+    count(*) as record_count
+    from station_data group by year, wind_severity order by year desc; 
+    
+-- Agregando precipitação em duas somas - com tornado e sem tornado:
+select year, month, sum(precipitation) as total_precipitation from station_data where tornado = 1 group by year, month;
+select year, month, sum(precipitation) as non_tornado_total_precipitation from station_data where tornado = 0 group by year, month;
+select year, month,
+    sum(case when tornado = 1 then precipitation else 0 end) as total_precipitation,
+    sum(case when tornado = 0 then precipitation else 0 end) as non_tornado_total_precipitation
+    from station_data where year >=2008 group by year, month;
+
+-- Calcule as temperaturas médias por mês quando chuva ou granizo estavam ou não presentes após 2000:
+select year, month, 
+    avg(case when rain or hail then temperature else null end) as avg_precipitation_temp,
+    avg(case when not rain or hail then temperature else null end) as avg_non_precipitation_temp
+    from station_data where year > 2000 group by year, month;
+    
+-- Criação de banco de dados my_surgetech_conference.db
+/*
+Requisitos:
+1) Entirades:
+    Participantes (nome, telefone, email e status VIP)
+    Empresas (nome descrição e contato principal [fk de participante])
+    Apresentações (hora início, hora término, empresa [fk de empresa] e sala [fk de sala])
+    Salas (número identificador, número do andar e capacidade sentada)
+    Apresentações_Comparecimento (número de tíquete do participante, apresentação [fk da sala] e participante [fk do participante])
+*/
+
+-- Criando as tabelas:
+
+create table participante (
+    id_participante integer primary key autoincrement unique not null,
+    nome varchar(30) not null,
+    sobrenome varchar(30) not null,
+    telefone integer,
+    email varchar(30),
+    VIP bollean default (0)
+    
+);
+
+create table empresa (
+    id_empresa integer primary key autoincrement unique not null,
+    nome varchar(30) not null,
+    descricao varchar(60),
+    fk_id_participante integer not null,
+    foreign key (fk_id_participante) 
+        references participante(id_participante)
+);
+
+create table sala (
+    id_sala integer primary key autoincrement unique not null,
+    sala_numero integer not null,
+    andar_numero integer not null,
+    capacidade_assentos integer not null
+);
+
+create table apresentacao(
+    id_apresentacao integer primary key autoincrement unique not null,
+    fk_id_empresa integer not null,
+    fk_id_sala integer not null,
+    hora_inicio time,
+    hora_fim time,
+    foreign key (fk_id_empresa)
+        references empresa(id_empresa),
+    foreign key (fk_id_sala)
+        references sala(id_sala)
+);
+
+create table apresentacao_comparecimento(
+    id_apresentacao_comparecimento integer primary key autoincrement unique not null,
+    tiquete integer not null,
+    fk_id_apresentacao integer,
+    fk_id_participante integer,
+    foreign key (fk_id_apresentacao)
+        references apresentacao(id_apresentacao),
+     foreign key (fk_id_participante)
+         references participante(id_participante)
+);
+
+-- Views
+
+create view vw_apresentacao as 
+    select empresa.nome, 
+            apresentacao.id_apresentacao, apresentacao.hora_inicio, apresentacao.hora_fim,
+            sala.sala_numero, sala.andar_numero, sala.capacidade_assentos
+        from empresa 
+            inner join sala on sala.id_sala = apresentacao.fk_id_sala
+            inner join apresentacao on empresa.id_empresa = apresentacao.fk_id_empresa;
+
+-- select em view igual a uma tabela:
+select * from vw_apresentacao where capacidade_assentos >=30;
+
+-- Inserindo dados no BD:
+insert into participante(nome, sobrenome) values ('Tomas', 'Nield');
+select * from participante;
+
+insert into participante(nome, sobrenome, telefone, email, VIP)
+    values 
+    ('Jon', 'Skeeter', 4802185842, 'john.skeeter@rex.net',1),
+    ('Sam', 'Scala', 2156783401,'sam.scala@gmail.com', 0),
+    ('Brittany', 'Fisher', 5932857296, 'brittany.fisher@outlook.com', 0);
+select * from participante;
+
+-- Deletando dados no BD:
+select * from participante where telefone isnull and email isnull;
+delete from participante where telefone isnull and email isnull;
+select * from participante;
+
+-- Atualizando dados no BD:
+update participante set email=upper(email);
+select * from participante;
+
+update participante set nome=upper(nome), sobrenome=upper(sobrenome);
+select * from participante;
+
+update participante set vip = 1 where id_participante in (3, 4);
+select * from participante;
+
+-- Consultas literais com operadores matemáticos:
+
+select 43 + 39 + 10 + 9 + 4 as total_idade;
+
+select 43 + 39;
+select 43 - 39;
+select 43 * 39;
+select 43 / 39;
+select 43 % 39;
+
+-- Consultas literais com operadores de comparação:
+select 5 = 10;
+select 5 == 10;
+select 43 == 43;
+select 5 !=10;
+select 5 <> 10;
+select 5 > 10;
+select 5 < 10;
+select 5 >=10;
+select 5 <= 10;
+select 39 >=39;
+
+-- Consultas literais com operadores lógicos:
+select 1 and 1; -- 1
+select 1 and 0; -- 0
+select 0 and 0; -- 0
+select 1 or 1; -- 1
+select 1 or 0; -- 1
+select 0 or 0; -- 0
+select 5 between 10 and 15; -- 0
+select 7 between 10 and 15; -- 1
+select 5 in(43, 39, 10, 9, 4); -- 0
+select 10 in(43, 39, 10, 9, 4); -- 1
+select 5 not in(43, 39, 10, 9, 4); -- 1
+select 10 not in(43, 39, 10, 9, 4); -- 0
+select 43 isnull; -- 0
+select 43 is not null; --1 
+
+-- Consultas com operadores de texto:
+select sobrenome ||', '|| nome as fullname from participante;
+
+
+
+
+
+
+
+
+
+

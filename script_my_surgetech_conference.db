@@ -1,0 +1,100 @@
+-- Criação de banco de dados my_surgetech_conference.db
+/*
+Requisitos:
+1) Entirades:
+    Participantes (nome, telefone, email e status VIP)
+    Empresas (nome descrição e contato principal [fk de participante])
+    Apresentações (hora início, hora término, empresa [fk de empresa] e sala [fk de sala])
+    Salas (número identificador, número do andar e capacidade sentada)
+    Apresentações_Comparecimento (número de tíquete do participante, apresentação [fk da sala] e participante [fk do participante])
+*/
+
+--Criando as tabelas
+
+create table participante (
+    id_participante integer primary key autoincrement unique not null,
+    nome varchar(30) not null,
+    sobrenome varchar(30) not null,
+    telefone integer,
+    email varchar(30),
+    VIP bollean default (0)
+    
+);
+
+create table empresa (
+    id_empresa integer primary key autoincrement unique not null,
+    nome varchar(30) not null,
+    descricao varchar(60),
+    fk_id_participante integer not null,
+    foreign key (fk_id_participante) 
+        references participante(id_participante)
+);
+
+create table sala (
+    id_sala integer primary key autoincrement unique not null,
+    sala_numero integer not null,
+    andar_numero integer not null,
+    capacidade_assentos integer not null
+);
+
+create table apresentacao(
+    id_apresentacao integer primary key autoincrement unique not null,
+    fk_id_empresa integer not null,
+    fk_id_sala integer not null,
+    hora_inicio time,
+    hora_fim time,
+    foreign key (fk_id_empresa)
+        references empresa(id_empresa),
+    foreign key (fk_id_sala)
+        references sala(id_sala)
+);
+
+create table apresentacao_comparecimento(
+    id_apresentacao_comparecimento integer primary key autoincrement unique not null,
+    tiquete integer not null,
+    fk_id_apresentacao integer,
+    fk_id_participante integer,
+    foreign key (fk_id_apresentacao)
+        references apresentacao(id_apresentacao),
+     foreign key (fk_id_participante)
+         references participante(id_participante)
+);
+
+-- Views
+
+create view vw_apresentacao as 
+    select empresa.nome, 
+            apresentacao.id_apresentacao, apresentacao.hora_inicio, apresentacao.hora_fim,
+            sala.sala_numero, sala.andar_numero, sala.capacidade_assentos
+        from empresa 
+            inner join sala on sala.id_sala = apresentacao.fk_id_sala
+            inner join apresentacao on empresa.id_empresa = apresentacao.fk_id_empresa;
+
+-- select em view igual a uma tabela:
+select * from vw_apresentacao where capacidade_assentos >=30;
+
+-- Inserindo dados no BD:
+insert into participante(nome, sobrenome) values ('Tomas', 'Nield');
+select * from participante;
+
+insert into participante(nome, sobrenome, telefone, email, VIP)
+    values 
+    ('Jon', 'Skeeter', 4802185842, 'john.skeeter@rex.net',1),
+    ('Sam', 'Scala', 2156783401,'sam.scala@gmail.com', 0),
+    ('Brittany', 'Fisher', 5932857296, 'brittany.fisher@outlook.com', 0);
+select * from participante;
+
+-- Deletando dados no BD:
+select * from participante where telefone isnull and email isnull;
+delete from participante where telefone isnull and email isnull;
+select * from participante;
+
+-- Atualizando dados no BD:
+update participante set email=upper(email);
+select * from participante;
+
+update participante set nome=upper(nome), sobrenome=upper(sobrenome);
+select * from participante;
+
+update participante set vip = 1 where id_participante in (3, 4);
+select * from participante;
