@@ -533,6 +533,138 @@ select 43 is not null; --1
 
 -- Consultas com operadores de texto:
 select sobrenome ||', '|| nome as fullname from participante;
+select nome, sobrenome from participante where sobrenome like 'S%';
+select nome, sobrenome from participante where sobrenome like 'S%_%R';
+
+-- Funções
+-- abs(): valor absoluto de um número
+select abs(-5);
+select abs(5);
+
+-- coalesce(): converte valor nulo em um valor padrão:
+select coalesce(null, 2);
+select coalesce(-5, 2);
+
+-- instr(): procura uma determinada string em outra string, retornando o índice da localização ou 0
+select instr('Vinicius dos Santos Lima', 'Lima');
+select instr('Vinicius dos Santos Lima', 'Bandeira');
+
+-- length(): fornece o n. de caracteres de uma string (espaços tambem contam:
+select length('Vinicius dos Santos Lima');
+
+-- trim(): remove espaços desnecessários dos dois lados de uma string:
+select '          Vinicius dos Santos Lima          ';
+select trim('          Vinicius dos Santos Lima          ');
+
+-- ltrim(): remove espaços desnecessários do lado esquerdo de uma string:
+select '          Vinicius dos Santos Lima          ';
+select ltrim('          Vinicius dos Santos Lima          ');
+
+-- rtrim(): remove espaços desnecessários do lado direito de uma string:
+select '          Vinicius dos Santos Lima          ';
+select rtrim('          Vinicius dos Santos Lima          ');
+
+-- random(): retorna um número aleatório:
+select random();
+
+-- round(): arredonda um número decimal em um número especificado de casas decimais:
+select round(3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679, 2);
+
+-- replace(): substitui uma string contida em uma string por outra string 
+-- (1º argumento é a string original, 2º argumento é a string que eu quero trocar, 3º argumento é a string que ficará no lugar do 2º argumento)
+select replace('Vinicius Lima', 'Vinicius', 'dos Santos');
+select replace('Vinicius Lima', 'Lima', 'dos Santos');
+select replace('Melissa Bandeira Lima', 'Melissa', 'Ana Carla');
+
+-- substr(): extrai de uma string determinados caracteres conforme o intervalo informado,, incluindo o índece informado
+select substr('Vinicius', 3, 5);
+select substr('AnaCarlaBandeira', 4, 5);
+
+-- lower(): converte todas os caracteres de uma string para minuscula
+select lower('LILICA');
+
+-- upper(): converte todas os caracteres de uma string para maiúscula
+select upper('lilica');
+
+-- Funções de agregação
+select avg(price) from rexon_metals.product; -- Média da coluna
+select count(price) from rexon_metals.product; -- conta todos os registros da coluna
+select max(price) from rexon_metals.product; -- conta o valor máximo da coluna
+select min(price) from rexon_metals.product; -- conta o valor mínimo da coluna
+select sum(price) from rexon_metals.product; -- soma os valores da coluna
+
+-- Funções e operações com data --> manter preferencialmente o formato aaaa-mm-dd
+select '2015-08-09' > '2016-02-12'; -- 0
+select '2015-08-09' < '2016-02-12'; -- 1
+select '2015-08-09' = '2016-02-12'; -- 0
+
+-- Data atual
+select date('now');
+
+-- Data atual com argumentos
+select date('now','-1 day');
+select date('now','-30 day');
+select date('now','5 day');
+select date('now','12 month', '15 day');
+select date('now','30 year');
+
+-- Funções e operações com hora --> manter preferencialmente o formato hh-mm-ss
+select '01-30-15';
+select '08-50-00' - '01-15-15';
+select '08-50-00' < '01-15-15'; -- 0
+select '08-50-00' > '01-15-15'; -- 1
+select '08-50-00' = '01-15-15'; -- 0
+
+-- Hora atual
+select time('now');
+
+-- Hora atual com argumentos
+select time('now','-01 hour');
+select time('now','-30 hour');
+select time('now','5 hour');
+select time('now','1 hour', '30 minute');
+select time('now','1 hour', '30 minute', '3 seconds');
+
+-- Funções e operações com hora e hora --> manter preferencialmente o formato aaaa-mm-dd hh-mm-ss 
+select '2021-03-12 10-51-00';
+select datetime('now');
+select datetime('now', '2 day');
+select datetime('now', '2 day', '-2 hour', '12 minute');
+
+-- Indexação: índice simples
+create index product_price on product(price); -- em rexon_metals.bd
+
+-- Indexação: índice único
+create unique index customer_name on customer(name); -- em rexon_metals.bd
+
+-- Indexação: excluindo índices
+drop index product_price; -- em rexon_metals.bd
+drop index customer_name; -- em rexon_metals.bd
+
+/*Banco de dados de transação account_activity.bd.db*/
+
+create table account_activity (
+    id_account integer primary key autoincrement unique not null,
+    amount integer not null default (0.00)
+);
+
+insert into account_activity (amount) 
+    values (1000.00),
+            (500.00);
+
+select * from account_activity;
+
+BEGIN TRANSACTION;
+
+UPDATE account_activity
+    SET amount = 1000.00 - 500
+    WHERE id_account = 1001;
+
+UPDATE account_activity
+    SET amount = 500.00 + 500
+    WHERE id_account = 1002;
+
+END TRANSACTION;
 
 
 
